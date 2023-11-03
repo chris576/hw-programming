@@ -21,16 +21,32 @@ START:
     ; cl right nibble
     and cl, 00001111b ;Right Nibble: Zahl in al über eine Maske mit 00001111 laufen lassen.
     ; bl left nibble
-    sar bl, 1
-    sar bl, 1
-    sar bl, 1
-    sar bl, 1
-    and bl, 00001111b
+    shr bl, 1
+    shr bl, 1
+    shr bl, 1
+    shr bl, 1
     add cl, bl
     mov al, cl
     out LED, al
-    mov al, [TAB7]
+    
+    mov dl, cl
+    and cl, 00001111b
+    shr dl, 1
+    shr dl, 1
+    shr dl, 1
+    shr dl, 1
+    and dl, 00001111b
+
+    mov al, cl
+    mov bx, TAB7
+    XLAT
+    out secondDis, al
+
+    mov al, dl
+    mov bx, TAB7
+    XLAT
     out firstDis, al
+
     jmp START
 
-TAB7 db 00111111b, 01100000b, 11011010b, 11110010b, 01100110b, 10110110b, 10111110b, 11100000b, 11111110b, 11110110b, 11110110b, 00111110b, 10011100b, 01111010b, 10011110b, 10001110b
+TAB7 db 63, 48, 91, 79, 102, 109, 125, 7, 127, 111, 119, 124, 88, 94, 121, 113, 
