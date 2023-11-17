@@ -8,19 +8,18 @@ typedef char *string;
  * Finds the amount of substrings within the string.
  *
  * @param s: The string within heap.
- * @param c: A pointer to the first char in the string.
- * @param first_found: A pointer to the reference of the first occurence of c within s.
+  * @param first_found: A pointer to the reference of the first occurrence of c within s.
  *
  */
-size_t findString(string s, string c, char **first_found)
+size_t findString(string s, string *first_found)
 {
-    char *p = strstr(s, c);
-    first_found = &p;
+    string p = strstr(*first_found, s);
+    *first_found = p;
     int i = 0;
     while (p != NULL)
     {
-        string sub = p + (strlen(c) - 1);
-        p = strstr(sub, c);
+        string sub = p + (strlen(s));
+        p = strstr(sub, s);
         i++;
     }
     return i;
@@ -29,24 +28,27 @@ size_t findString(string s, string c, char **first_found)
 /**
  *
  */
-void memdump(string s)
+void memdump(string p, size_t length)
 {
     printf("\n");
+    //zeilen müssen an durch 16 teilbren adressen beginnen
     printf("%-20s\n", "ADDR");
-    char *p = s;
-    while (strlen(p) > 1)
+    for (; *p; p++) 
     {
-        printf("%-#10x %-.16s\n", &p, p);
-        if (strlen(p) >= 16)
+        if ((unsigned long)p % 16 == 0) 
         {
-            p += 16;
+            printf("\n%p  ", p);
         }
-        else if (strlen(p) < 16 && strlen(p) > 1)
+        if (isprint(*p)) 
         {
-            p += strlen(p);
+            printf("%c", *p);
+        }
+        else 
+        {
+            printf("%c", '.');
         }
     }
-    printf("\n");
+    printf("\n\n");    
 }
 
 /**
@@ -65,18 +67,25 @@ int main(int argc, char **argv)
     }
     size_t stringSize = strlen(argv[1]) + 1;
     size_t substringSize = strlen(argv[2]) + 1;
-    string mstring = (string)malloc(stringSize);
+    string mstring = (string)malloc(stringSize);    
     string sstring = (string)malloc(substringSize);
+    string freeMe = mstring; //sicherheitkopie der reservierten adresse
+
     if (mstring == NULL || sstring == NULL)
     {
         return 2;
     }
     strcpy(mstring, argv[1]);
     strcpy(sstring, argv[2]);
+
     printf("Laenge der Zeichenkette (inkl. Nullterminierung): %d Byte(s)\n", stringSize);
     printf("Suchkriterium: %s\n", sstring);
-    memdump(mstring);
-    char **first_found;
-    int count = findString(mstring, sstring, first_found);
-    printf("Die Suchzeichenkette wurde %u mal gefunden.\nZuerst in Adresse %#010x\n", count, first_found);
+    
+    memdump(mstring, stringSize);
+    int count = findString(sstring, &mstring);
+
+    printf("Die Suchzeichenkette wurde %u mal gefunden.\nZuerst in Adresse %p\n", count, mstring);
+    
+    free(freeMe);
+    free(sstring);
 }
