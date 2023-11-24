@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 typedef char *string;
 
@@ -8,7 +9,7 @@ typedef char *string;
  * Finds the amount of substrings within the string.
  *
  * @param s: The string within heap.
-  * @param first_found: A pointer to the reference of the first occurrence of c within s.
+ * @param first_found: A pointer to the reference of the first occurrence of c within s.
  *
  */
 size_t findString(string s, string *first_found)
@@ -31,24 +32,36 @@ size_t findString(string s, string *first_found)
 void memdump(string p, size_t length)
 {
     printf("\n");
-    //zeilen müssen an durch 16 teilbren adressen beginnen
-    printf("%-20s\n", "ADDR");
-    for (; *p; p++) 
+    // zeilen müssen an durch 16 teilbren adressen beginnen
+    printf("%-20s\n", "ADDR            0123456789ABFDEF");
+    string s = p;
+    size_t out_length = length;
+    if (out_length % 16 != 0)
     {
-        if ((unsigned long)p % 16 == 0) 
+        out_length += (16 - (out_length % 16));
+    }
+    for (int i = 0; i < out_length; i++)
+    {
+        if ((unsigned long)s % 16 == 0)
         {
-            printf("\n%p  ", p);
+            printf("\n%p  ", s);
         }
-        if (isprint(*p)) 
+        if (isprint(*s) && i <= length)
         {
-            printf("%c", *p);
+            printf("%c", *s);
+            s++;
         }
-        else 
+        else if (i <= length)
+        {
+            printf("%c", '.');
+            s++;
+        }
+        else
         {
             printf("%c", '.');
         }
     }
-    printf("\n\n");    
+    printf("\n\n");
 }
 
 /**
@@ -67,9 +80,9 @@ int main(int argc, char **argv)
     }
     size_t stringSize = strlen(argv[1]) + 1;
     size_t substringSize = strlen(argv[2]) + 1;
-    string mstring = (string)malloc(stringSize);    
+    string mstring = (string)malloc(stringSize);
     string sstring = (string)malloc(substringSize);
-    string freeMe = mstring; //sicherheitkopie der reservierten adresse
+    string freeMe = mstring; // sicherheitkopie der reservierten adresse
 
     if (mstring == NULL || sstring == NULL)
     {
@@ -80,12 +93,12 @@ int main(int argc, char **argv)
 
     printf("Laenge der Zeichenkette (inkl. Nullterminierung): %d Byte(s)\n", stringSize);
     printf("Suchkriterium: %s\n", sstring);
-    
+
     memdump(mstring, stringSize);
     int count = findString(sstring, &mstring);
 
     printf("Die Suchzeichenkette wurde %u mal gefunden.\nZuerst in Adresse %p\n", count, mstring);
-    
+
     free(freeMe);
     free(sstring);
 }
