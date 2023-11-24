@@ -34,7 +34,7 @@ void memdump(string p, size_t length)
     printf("\n");
     // zeilen müssen an durch 16 teilbren adressen beginnen
     printf("%-20s\n", "ADDR            0123456789ABFDEF");
-    string s = p;
+    string s = p - (unsigned long) p %16;
     size_t out_length = length;
     if (out_length % 16 != 0)
     {
@@ -46,20 +46,15 @@ void memdump(string p, size_t length)
         {
             printf("\n%p  ", s);
         }
-        if (isprint(*s) && i <= length)
+        if (isprint(*s))
         {
             printf("%c", *s);
-            s++;
-        }
-        else if (i <= length)
-        {
-            printf("%c", '.');
-            s++;
         }
         else
         {
             printf("%c", '.');
         }
+        s++;
     }
     printf("\n\n");
 }
